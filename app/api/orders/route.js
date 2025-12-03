@@ -11,7 +11,6 @@ import Store from '@/models/Store';
 import Coupon from '@/models/Coupon';
 import GuestUser from '@/models/GuestUser';
 import { sendOrderConfirmationEmail } from '@/lib/email';
-import { sendOrderConfirmationSMS } from '@/lib/sms';
 
 const PaymentMethod = {
     COD: 'COD',
@@ -338,21 +337,7 @@ export async function POST(request) {
                     console.log('Order confirmation email sent to:', customerEmail);
                 }
 
-                // Send order confirmation SMS
-                if (shippingAddress?.phone) {
-                    try {
-                        await sendOrderConfirmationSMS({
-                            phoneNumber: shippingAddress.phone,
-                            orderId: order._id.toString(),
-                            totalAmount: order.total.toFixed(2),
-                            customerName: customerName || shippingAddress.name || 'Customer'
-                        });
-                        console.log('Order confirmation SMS sent to:', shippingAddress.phone);
-                    } catch (smsError) {
-                        console.error('Error sending order confirmation SMS:', smsError);
-                        // Don't fail the order if SMS fails
-                    }
-                }
+
             } catch (emailError) {
                 console.error('Error sending order confirmation email:', emailError);
                 // Don't fail the order if email fails

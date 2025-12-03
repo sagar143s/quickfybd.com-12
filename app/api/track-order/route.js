@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import dbConnect from '@/lib/dbConnect'
+import connectDB from '@/lib/mongodb'
 import Order from '@/models/Order'
 
 export async function GET(req) {
   try {
-    await dbConnect()
+    await connectDB()
 
     const { searchParams } = new URL(req.url)
     const phone = searchParams.get('phone')

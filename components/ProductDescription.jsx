@@ -82,16 +82,36 @@ const ProductDescription = ({ product }) => {
                 </div>
                 <div className="p-6">
                     <div 
-                        className="prose prose-slate max-w-none 
-                        prose-headings:text-gray-900 prose-headings:font-bold prose-headings:mb-3
-                        prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
-                        prose-ul:text-gray-700 prose-ul:mb-4 prose-li:text-gray-700 prose-li:mb-2
-                        prose-strong:text-gray-900 prose-strong:font-semibold
-                        prose-img:rounded-lg prose-img:shadow-sm prose-img:max-w-full prose-img:h-auto
-                        prose-table:border-collapse prose-table:w-full prose-table:my-4
-                        prose-th:text-left prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-th:border prose-th:border-gray-200
-                        prose-td:p-3 prose-td:border prose-td:border-gray-200
-                        [&_video]:max-w-full [&_video]:w-full [&_video]:h-auto [&_video]:rounded-lg [&_video]:shadow-sm [&_video]:my-4"
+                        className="max-w-none
+                        [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h1]:mb-4 [&_h1]:mt-4
+                        [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-900 [&_h2]:mb-3 [&_h2]:mt-3
+                        [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-gray-900 [&_h3]:mb-2 [&_h3]:mt-2
+                        [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:mb-4
+                        [&_strong]:font-semibold [&_strong]:text-gray-900
+                        [&_em]:italic [&_em]:text-gray-800
+                        [&_u]:underline
+                        [&_ul]:list-disc [&_ul]:list-inside [&_ul]:text-gray-700 [&_ul]:mb-4 [&_ul]:ml-4
+                        [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:text-gray-700 [&_ol]:mb-4 [&_ol]:ml-4
+                        [&_li]:text-gray-700 [&_li]:mb-1
+                        [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-800
+                        [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:shadow-sm [&_img]:my-4
+                        [&_video]:max-w-full [&_video]:w-full [&_video]:h-auto [&_video]:rounded-lg [&_video]:shadow-sm [&_video]:my-4
+                        [&_figure]:my-6 [&_figure]:text-center
+                        [&_figcaption]:text-sm [&_figcaption]:text-gray-600 [&_figcaption]:mt-2
+                        [&_blockquote]:border-l-4 [&_blockquote]:border-orange-500 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_blockquote]:my-4
+                        [&_code]:bg-gray-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_code]:text-red-600
+                        [&_pre]:bg-gray-900 [&_pre]:text-gray-100 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-4
+                        [&_pre_code]:bg-none [&_pre_code]:text-inherit [&_pre_code]:p-0
+                        [&_hr]:border-t-2 [&_hr]:border-gray-300 [&_hr]:my-6
+                        [&_table]:w-full [&_table]:border-collapse [&_table]:my-6 [&_table]:border [&_table]:border-gray-300
+                        [&_thead]:bg-gray-100
+                        [&_thead_th]:text-left [&_thead_th]:px-4 [&_thead_th]:py-3 [&_thead_th]:font-semibold [&_thead_th]:text-gray-800 [&_thead_th]:border [&_thead_th]:border-gray-300
+                        [&_tbody_tr]:border-b [&_tbody_tr]:border-gray-300
+                        [&_tbody_tr:hover]:bg-gray-50
+                        [&_tbody_tr:last-child]:border-b-0
+                        [&_tbody_td]:px-4 [&_tbody_td]:py-3 [&_tbody_td]:text-gray-700 [&_tbody_td]:border [&_tbody_td]:border-gray-300
+                        [&_tfoot_th]:text-left [&_tfoot_th]:px-4 [&_tfoot_th]:py-3 [&_tfoot_th]:font-semibold [&_tfoot_th]:text-gray-800 [&_tfoot_th]:border [&_tfoot_th]:border-gray-300 [&_tfoot_th]:bg-gray-50
+                        [&_br]:block"
                         dangerouslySetInnerHTML={{ __html: product.description }}
                     />
                 </div>

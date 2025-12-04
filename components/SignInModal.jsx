@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import OtpInput from './OtpInput';
 import { X, Truck, Undo2 } from 'lucide-react';
 import { auth, googleProvider } from '../lib/firebase';
 import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -40,15 +41,15 @@ const SignInModal = ({ open, onClose }) => {
       // Wait for the container to exist in the DOM
       const interval = setInterval(() => {
         const container = document.getElementById('recaptcha-container');
-        if (container) {
+        if (container && auth) {
           try {
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
               size: 'invisible',
               callback: () => {
                 // reCAPTCHA solved
               },
               'sitekey': '6LeCICEsAAAAAN4KV7qmPiVhzRtYKPx4_J4-zwEe' // Updated site key
-            });
+            }, auth);
           } catch (error) {
             console.error('RecaptchaVerifier error:', error);
           }
@@ -82,11 +83,11 @@ const SignInModal = ({ open, onClose }) => {
     try {
       // Recreate recaptcha if needed
       if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
           size: 'invisible',
           callback: () => {},
           'sitekey': '6LeCICEsAAAAAN4KV7qmPiVhzRtYKPx4_J4-zwEe' // Updated site key
-        });
+        }, auth);
       }
       
       const appVerifier = window.recaptchaVerifier;
@@ -485,13 +486,10 @@ const SignInModal = ({ open, onClose }) => {
                     Change
                   </button>
                 </p>
-                <input
-                  type="text"
-                  placeholder="Enter 6-digit OTP"
-                  className="border rounded-lg px-3 py-2 text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-400"
+                <OtpInput
                   value={otp}
-                  onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
-                  maxLength="6"
+                  onChange={setOtp}
+                  length={6}
                 />
                 <button
                   type="button"

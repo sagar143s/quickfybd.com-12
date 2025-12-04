@@ -51,23 +51,23 @@ export default function HomeCategories() {
       {/* Scrollable Row */}
       <div
         ref={scrollRef}
-        className="flex flex-row items-center justify-start md:justify-between gap-4 md:gap-4 overflow-x-auto scrollbar-hide px-10 md:px-4"
+        className="flex flex-row items-center justify-start md:justify-between gap-3 md:gap-4 overflow-x-auto scrollbar-hide px-3 md:px-4"
       >
         {categories.map((cat, idx) => (
-          <Link 
-            key={cat.label + '-' + idx} 
+          <Link
+            key={cat.label + '-' + idx}
             href={cat.link}
-            className="flex flex-col items-center min-w-[calc(100vw/5-16px)] md:min-w-0 md:w-1/10 cursor-pointer hover:bg-blue-50 hover:scale-105 transition-all duration-200 rounded-2xl p-3 -m-3"
+            className="flex flex-col items-center min-w-[20vw] max-w-[22vw] md:min-w-0 md:w-1/10 cursor-pointer hover:bg-blue-50 hover:scale-105 transition-all duration-200 rounded-2xl p-2 md:p-3 -m-2 md:-m-3"
           >
             <div className="relative">
-              <Image src={cat.img} alt={cat.label} width={70} height={70} className="object-contain" />
+              <Image src={cat.img} alt={cat.label} width={60} height={60} className="object-contain" />
               {cat.badge && (
                 <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-blue-600 text-xs text-white px-3 py-1 rounded-full font-bold shadow-md z-50 border-2 border-white">
                   {cat.badge}
                 </span>
               )}
             </div>
-            <span className="mt-2 text-[10px] sm:text-sm text-center font-medium line-clamp-2 leading-tight">
+            <span className="mt-2 text-[11px] sm:text-sm text-center font-medium line-clamp-2 leading-tight">
               {cat.label} {cat.hasDropdown && <span>&#9660;</span>}
             </span>
           </Link>

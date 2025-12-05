@@ -79,62 +79,38 @@ const SignInModal = ({ open, onClose }) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const handleSendOTP = async () => {
-    setError('');
-    // Assume you have a state for selectedCountryCode, e.g. '+91'
-    // If not, default to '+91'
-    const countryCode = selectedCountryCode || '+91';
-    const number = phoneNumber.replace(/\D/g, ''); // Remove non-digits
-    const formattedPhone = `${countryCode}${number}`;
-    if (!/^\+\d{10,}$/.test(formattedPhone)) {
-      setError('Please enter a valid phone number. Example: 7592875212');
-      return;
-    }
-    setLoading(true);
-    try {
-      // Always get RecaptchaVerifier from compat
-      const RecaptchaVerifier = window.firebase && window.firebase.auth && window.firebase.auth.RecaptchaVerifier;
-      if (!window.recaptchaVerifier) {
-        if (!RecaptchaVerifier) {
-          setError('RecaptchaVerifier (compat) is not available. Please reload the page.');
-          setLoading(false);
-          return;
-        }
-        window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-          size: 'invisible',
-          callback: () => {}
-        }, auth);
-      }
-      const appVerifier = window.recaptchaVerifier;
-      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      // Store confirmation result for later verification
-      window.confirmationResult = confirmationResult;
-      setOtpSent(true);
-      setError('');
-    } catch (err) {
-      console.error('OTP send error:', err);
-      let errorMessage = 'Failed to send OTP. Please try again.';
-      // Handle specific Firebase errors
-      if (err.code === 'auth/quota-exceeded') {
-        errorMessage = 'SMS quota exceeded. Please upgrade your Firebase plan or try email login.';
-      } else if (err.code === 'auth/invalid-phone-number') {
-        errorMessage = 'Invalid phone number. Please check and try again.';
-      } else if (err.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many requests. Please try again later.';
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      setError(errorMessage);
-      // Reset recaptcha
-      if (window.recaptchaVerifier) {
-        try {
-          window.recaptchaVerifier.clear();
-        } catch (e) {}
-        window.recaptchaVerifier = null;
-      }
-    }
-    setLoading(false);
-  };
+ const handleSendOTP = async () => {
+  setError("");
+
+  const numberOnly = phoneNumber.replace(/\D/g, "");
+  const formattedPhone = `${selectedCountryCode}${numberOnly}`;
+
+  if (!/^\+\d{10,}$/.test(formattedPhone)) {
+    setError("Enter a valid phone number.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const recaptcha = getRecaptchaVerifier();
+
+    const confirmation = await signInWithPhoneNumber(
+      auth,
+      formattedPhone,
+      recaptcha
+    );
+
+    window.confirmationResult = confirmation;
+    setOtpSent(true);
+  } catch (err) {
+    console.error(err);
+    setError("Failed to send OTP.");
+  }
+
+  setLoading(false);
+};
+
 
   const handleVerifyOTP = async () => {
     setError('');

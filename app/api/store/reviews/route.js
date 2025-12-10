@@ -103,11 +103,23 @@ export async function POST(request) {
             return Response.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Validate productId
+        if (!productId || typeof productId !== 'string' || !productId.match(/^[a-fA-F0-9]{24}$/)) {
+            console.error('Invalid or missing productId:', productId);
+            return Response.json({ error: "Product ID required or invalid format" }, { status: 400 });
+        }
+
         // Verify product belongs to this store
-        const product = await Product.findOne({
-            _id: productId,
-            storeId
-        }).lean();
+        let product;
+        try {
+            product = await Product.findOne({
+                _id: productId,
+                storeId
+            }).lean();
+        } catch (err) {
+            console.error('Product.findOne error:', err, 'productId:', productId);
+            return Response.json({ error: "Invalid productId format" }, { status: 400 });
+        }
 
         if (!product) {
             return Response.json({ error: "Product not found or not authorized" }, { status: 403 });

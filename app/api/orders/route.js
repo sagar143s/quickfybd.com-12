@@ -115,7 +115,17 @@ export async function POST(request) {
         const ordersByStore = new Map();
         let grandSubtotal = 0;
         for (const item of items) {
-            const product = await Product.findById(item.id).lean();
+            if (!item.id || typeof item.id !== 'string' || !item.id.match(/^[a-fA-F0-9]{24}$/)) {
+                console.error('Invalid or missing productId in order item:', item.id);
+                return NextResponse.json({ error: 'Product ID required or invalid format', id: item.id }, { status: 400 });
+            }
+            let product;
+            try {
+                product = await Product.findById(item.id).lean();
+            } catch (err) {
+                console.error('Product.findById error:', err, 'productId:', item.id);
+                return NextResponse.json({ error: 'Invalid productId format', id: item.id }, { status: 400 });
+            }
             if (!product) return NextResponse.json({ error: 'Product not found', id: item.id }, { status: 400 });
             const storeId = product.storeId;
             if (!ordersByStore.has(storeId)) ordersByStore.set(storeId, []);

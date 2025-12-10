@@ -41,8 +41,20 @@ export async function POST(request){
         }
 
         await dbConnect();
+        // Validate productId
+        if (!productId || typeof productId !== 'string' || !productId.match(/^[a-fA-F0-9]{24}$/)) {
+            console.error('Invalid or missing productId:', productId);
+            return NextResponse.json({ error: "Product ID required or invalid format" }, { status: 400 });
+        }
+
         // check if product exists
-        const product = await Product.findOne({ _id: productId, storeId });
+        let product;
+        try {
+            product = await Product.findOne({ _id: productId, storeId });
+        } catch (err) {
+            console.error('Product.findOne error:', err, 'productId:', productId);
+            return NextResponse.json({ error: "Invalid productId format" }, { status: 400 });
+        }
 
         if(!product){
             return NextResponse.json({ error: 'no product found' }, { status: 404 });

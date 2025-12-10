@@ -32,9 +32,16 @@ export async function GET(request) {
         const wishlistItems = await WishlistItem.find({ userId }).sort({ createdAt: -1 }).lean();
         // Populate product data
         for (let item of wishlistItems) {
-            if (item.productId) {
-                const product = await Product.findById(item.productId).lean();
-                item.product = product;
+            if (item.productId && typeof item.productId === 'string' && item.productId.match(/^[a-fA-F0-9]{24}$/)) {
+                try {
+                    const product = await Product.findById(item.productId).lean();
+                    item.product = product;
+                } catch (err) {
+                    console.error('Product.findById error:', err, 'productId:', item.productId);
+                    item.product = null;
+                }
+            } else {
+                item.product = null;
             }
         }
         return NextResponse.json({ wishlist: wishlistItems });

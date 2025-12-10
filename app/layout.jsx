@@ -1,11 +1,10 @@
 import { Outfit } from "next/font/google";
-import { Toaster } from "react-hot-toast";
-import StoreProvider from "@/app/StoreProvider";
 import "./globals.css";
 import Script from "next/script";
 import React from "react";
 import MetaPixel from "@/components/MetaPixel";
 import SocialProofPopup from "@/components/SocialProofPopup";
+import ClientLayout from "./ClientLayout";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600"] });
 
@@ -41,7 +40,6 @@ export default function RootLayout({ children }) {
       <head>
         {/* Disable auto-zoom on mobile */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        
         {/* ImageKit Optimization */}
         {ikOrigin && (
           <>
@@ -49,7 +47,6 @@ export default function RootLayout({ children }) {
             <link rel="preconnect" href={ikOrigin} crossOrigin="anonymous" />
           </>
         )}
-
         {/* Google Tag Manager - HEAD */}
         <Script id="gtm-head" strategy="afterInteractive">
           {`
@@ -61,10 +58,8 @@ export default function RootLayout({ children }) {
           `}
         </Script>
       </head>
-
       <body className={`${outfit.className} antialiased`} suppressHydrationWarning>
         <MetaPixel />
-
         {/* Google Tag Manager (noscript required for browsers with JS disabled) */}
         <noscript>
           <iframe
@@ -74,12 +69,8 @@ export default function RootLayout({ children }) {
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
-
-        <StoreProvider>
-          <Toaster />
-          {/* <SocialProofPopup /> */}
-          {children}
-        </StoreProvider>
+        {/* Add Navbar and Footer globally via ClientLayout */}
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

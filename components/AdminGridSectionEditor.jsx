@@ -64,7 +64,7 @@ export default function AdminGridSectionEditor({ sectionId, onSave }) {
         onChange={handleProductSelect}
       >
         {allProducts.map(product => (
-          <option key={product.id} value={product.id}>
+          <option key={product._id} value={product._id}>
             {product.name}
           </option>
         ))}

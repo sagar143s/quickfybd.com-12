@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../assets/Asset11.png";
@@ -44,9 +45,9 @@ const Footer = () => {
             ]
         },
         {
-            title: "ABOUT QUI",
+            title: "ABOUT QUICKFYND",
             links: [
-                { text: "About Us", path: '/support', icon: null },
+                { text: "About Us", path: '/about-us', icon: null },
                 { text: "Create Your Store", path: '/create-store', icon: null },
                 { text: "Become a Seller", path: '/create-store', icon: null },
                 { text: "Careers", path: '/careers', icon: null },
@@ -130,9 +131,10 @@ const Footer = () => {
                                 </Link>
                             ))}
                         </div>
-                        <p className="text-sm text-slate-500 text-center w-full">
-                            © {new Date().getFullYear()} QuickFynd. All rights reserved.
-                        </p>
+                    <p className="text-sm text-slate-500 text-center w-full">
+  © {new Date().getFullYear()} QuickFynd — Powered by Nilaas. All rights reserved.
+</p>
+
                     </div>
                 </div>
             </div>

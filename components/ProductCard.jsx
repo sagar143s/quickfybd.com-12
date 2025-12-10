@@ -15,11 +15,34 @@ const ProductCard = ({ product }) => {
     const dispatch = useDispatch()
     const { getToken } = useAuth()
     const cartItems = useSelector(state => state.cart.cartItems)
-    const itemQuantity = cartItems[product.id] || 0
+    const itemQuantity = cartItems[product._id] || 0
 
-    const rating = product.rating?.length > 0 
-        ? Math.round(product.rating.reduce((acc, curr) => acc + curr.rating, 0) / product.rating.length)
-        : 0
+    // Review state and fetching logic
+    const [reviews, setReviews] = React.useState([]);
+    const [loadingReviews, setLoadingReviews] = React.useState(false);
+
+    React.useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                setLoadingReviews(true);
+                const { data } = await import('axios').then(ax => ax.default.get(`/api/review?productId=${product._id}`));
+                setReviews(data.reviews || []);
+            } catch (error) {
+                // silent fail
+            } finally {
+                setLoadingReviews(false);
+            }
+        };
+        fetchReviews();
+    }, [product._id]);
+
+    // Calculate rating and count from fetched reviews, fallback to product fields
+    const averageRating = reviews.length > 0
+        ? reviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / reviews.length
+        : (typeof product.averageRating === 'number' ? product.averageRating : 0);
+    const ratingCount = reviews.length > 0
+        ? reviews.length
+        : (typeof product.ratingCount === 'number' ? product.ratingCount : 0);
 
     // Calculate discount percentage
     const discount = product.mrp && product.mrp > product.price
@@ -80,7 +103,7 @@ const ProductCard = ({ product }) => {
                     {/* Ratings and Cart Button Row */}
                     <div className='flex items-center justify-between mb-0.5'>
                         <div className='flex items-center gap-0.5'>
-                            {product.ratingCount > 0 ? (
+                            {ratingCount > 0 ? (
                                 <>
                                     <div className='flex items-center'>
                                         {Array(5).fill('').map((_, index) => (
@@ -88,13 +111,13 @@ const ProductCard = ({ product }) => {
                                                 key={index}
                                                 size={10}
                                                 className='text-yellow-400'
-                                                fill={product.averageRating >= index + 1 ? "#FBBF24" : "none"}
-                                                stroke={product.averageRating >= index + 1 ? "#FBBF24" : "#D1D5DB"}
+                                                fill={averageRating >= index + 1 ? "#FBBF24" : "none"}
+                                                stroke={averageRating >= index + 1 ? "#FBBF24" : "#D1D5DB"}
                                                 strokeWidth={1.5}
                                             />
                                         ))}
                                     </div>
-                                    <span className='text-[10px] sm:text-[11px] text-gray-400'>({product.ratingCount})</span>
+                                    <span className='text-[10px] sm:text-[11px] text-gray-400'>({ratingCount})</span>
                                 </>
                             ) : (
                                 <span className='text-[10px] sm:text-[11px] text-red-400'>No reviews</span>

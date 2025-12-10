@@ -28,7 +28,7 @@ export default function ProductSection({ title, products, viewAllLink }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-4">
                 {products.slice(0, 12).map((product) => (
                     <div
-                        key={product.id}
+                        key={product._id}
                         onClick={() => product.slug && router.push(`/product/${product.slug}`)}
                         className={`cursor-pointer group hover:shadow-md transition-all duration-200 rounded-lg p-2 hover:bg-gray-50 ${!product.slug ? 'opacity-50 pointer-events-none' : ''}`}
                         title={product.slug ? '' : 'No slug set for this product'}

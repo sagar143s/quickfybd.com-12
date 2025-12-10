@@ -60,7 +60,7 @@ export default function StoreReviews() {
         try {
             const token = await getToken()
             const form = new FormData()
-            form.append('productId', selectedProduct.id)
+            form.append('productId', selectedProduct._id)
             form.append('rating', formData.rating)
             form.append('review', formData.review)
             form.append('customerName', formData.customerName)

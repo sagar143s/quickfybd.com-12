@@ -31,10 +31,34 @@ const ProductDetails = ({ product, reviews = [] }) => {
   const cartCount = useSelector((state) => state.cart.total);
   const cartItems = useSelector((state) => state.cart.cartItems);
 
-  // Use reviews prop if available for live data
-  const averageRating = (Array.isArray(reviews) && reviews.length > 0)
-    ? reviews.reduce((acc, item) => acc + (item.rating || 0), 0) / reviews.length
-    : 0;
+  // Review state and fetching logic
+  const [fetchedReviews, setFetchedReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+
+  // Use fetched reviews if available, else prop
+  const reviewsToUse = fetchedReviews.length > 0 ? fetchedReviews : reviews;
+  const averageRating = reviewsToUse.length > 0
+    ? reviewsToUse.reduce((acc, item) => acc + (item.rating || 0), 0) / reviewsToUse.length
+    : (typeof product.averageRating === 'number' ? product.averageRating : 0);
+
+  const reviewCount = reviewsToUse.length > 0
+    ? reviewsToUse.length
+    : (typeof product.ratingCount === 'number' ? product.ratingCount : 0);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoadingReviews(true);
+        const { data } = await axios.get(`/api/review?productId=${product._id}`);
+        setFetchedReviews(data.reviews || []);
+      } catch (error) {
+        console.error('Failed to fetch reviews:', error);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+    fetchReviews();
+  }, [product._id]);
 
   // Variants support
   const variants = Array.isArray(product.variants) ? product.variants : [];
@@ -67,7 +91,7 @@ const ProductDetails = ({ product, reviews = [] }) => {
   // Check wishlist status
   useEffect(() => {
     checkWishlistStatus();
-  }, [isSignedIn, product.id]);
+  }, [isSignedIn, product._id]);
 
   // Close share menu when clicking outside
   useEffect(() => {
@@ -91,12 +115,12 @@ const ProductDetails = ({ product, reviews = [] }) => {
       if (isSignedIn) {
         // Check server wishlist for signed-in users
         const { data } = await axios.get('/api/wishlist');
-        const isInList = data.wishlist?.some(item => item.productId === product.id);
+        const isInList = data.wishlist?.some(item => item.productId === product._id);
         setIsInWishlist(isInList);
       } else {
         // Check localStorage for guests
         const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist') || '[]');
-        const isInList = guestWishlist.some(item => item && item.productId === product.id);
+        const isInList = guestWishlist.some(item => item && item.productId === product._id);
         setIsInWishlist(isInList);
       }
     } catch (error) {
@@ -114,7 +138,7 @@ const ProductDetails = ({ product, reviews = [] }) => {
         // Handle server wishlist for signed-in users
         const action = isInWishlist ? 'remove' : 'add';
         await axios.post('/api/wishlist', { 
-          productId: product.id, 
+          productId: product._id, 
           action 
         });
         
@@ -130,14 +154,14 @@ const ProductDetails = ({ product, reviews = [] }) => {
         
         if (isInWishlist) {
           // Remove from wishlist
-          const updatedWishlist = guestWishlist.filter(item => item && item.productId !== product.id);
+          const updatedWishlist = guestWishlist.filter(item => item && item.productId !== product._id);
           localStorage.setItem('guestWishlist', JSON.stringify(updatedWishlist));
           setIsInWishlist(false);
           setWishlistMessage('Removed from wishlist');
         } else {
           // Add to wishlist with product details
           const wishlistItem = {
-            productId: product.id,
+            productId: product._id,
             name: product.name,
             price: effPrice,
             mrp: effMrp,
@@ -457,51 +481,49 @@ const ProductDetails = ({ product, reviews = [] }) => {
 
             {/* Rating & Reviews */}
             <div className="flex items-center gap-3">
-              {(reviews && reviews.length > 0) ? (
-                <>
-                  <div className="flex items-center gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <StarIcon
-                        key={i}
-                        size={16}
-                        fill={i < Math.round(product.averageRating) ? "#FFA500" : "none"}
-                        className={i < Math.round(product.averageRating) ? "text-orange-500" : "text-gray-300"}
-                        strokeWidth={1.5}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-600">{reviews.length} Reviews</span>
+              <>
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <StarIcon
+                      key={i}
+                      size={16}
+                      fill={i < Math.round(averageRating) ? "#FFA500" : "none"}
+                      className={i < Math.round(averageRating) ? "text-orange-500" : "text-gray-300"}
+                      strokeWidth={1.5}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600">
+                  {reviewCount > 0 ? `${reviewCount} Reviews` : 'No reviews'}
+                </span>
+                {reviewCount > 0 && (
                   <a href="#reviews" className="text-sm text-blue-600 hover:underline">
                     (See Reviews)
                   </a>
-                </>
-              ) : (
-                <span className="text-xs text-gray-400 ml-1">No reviews</span>
-              )}
+                )}
+              </>
             </div>
 
             {/* Stock Availability */}
-            {product.stockQuantity !== undefined && (
-              <div className="flex items-center gap-2">
-                {product.stockQuantity > 0 ? (
-                  <>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 text-sm font-medium rounded-lg border border-green-200">
+              {typeof product.stockQuantity === 'number' && (
+                <div className="flex items-center gap-2">
+                  {product.stockQuantity === 0 ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 text-sm font-medium rounded-lg border border-red-200">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      Out of Stock
+                    </span>
+                  ) : product.stockQuantity < 20 ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-700 text-sm font-medium rounded-lg border border-orange-200">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      In Stock: {product.stockQuantity} units available
+                      Limited stock: {product.stockQuantity} available
                     </span>
-                  </>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 text-sm font-medium rounded-lg border border-red-200">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                    Out of Stock
-                  </span>
-                )}
-              </div>
-            )}
+                  ) : null}
+                </div>
+              )}
 
             {/* Price Section */}
             <div className="space-y-2">
@@ -659,7 +681,7 @@ const ProductDetails = ({ product, reviews = [] }) => {
                 </svg>
               </button>
 
-              {cartItems[product.id] ? (
+              {cartItems[product._id] ? (
                 <button
                   onClick={() => router.push('/cart')}
                   className="flex-1 bg-green-600 text-white py-3.5 px-6 rounded-lg font-semibold text-base hover:bg-green-700 transition flex items-center justify-center gap-2"

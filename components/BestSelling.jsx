@@ -28,7 +28,7 @@ const ProductCard = ({ product }) => {
   const dispatch = useDispatch()
   const { getToken } = useAuth()
   const cartItems = useSelector(state => state.cart.cartItems)
-  const itemQuantity = cartItems[product.id] || 0
+  const itemQuantity = cartItems[product._id] || 0
 
   const primaryImage = getImageSrc(product, 0)
   const secondaryImage = getImageSrc(product, 1)
@@ -208,7 +208,7 @@ const BestSelling = () => {
 
   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-3 md:gap-6">
         {shown.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product._id} product={product} />
         ))}
       </div>
     </div>

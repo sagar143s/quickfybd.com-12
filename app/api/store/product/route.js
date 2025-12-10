@@ -237,9 +237,19 @@ export async function PUT(request) {
             slug = slug.replace(/(^-|-$)+/g, '');
         }
 
-        if (!productId) return NextResponse.json({ error: "Product ID required" }, { status: 400 });
 
-        let product = await Product.findById(productId).lean();
+        if (!productId || typeof productId !== 'string' || !productId.match(/^[a-fA-F0-9]{24}$/)) {
+            console.error('Invalid or missing productId:', productId);
+            return NextResponse.json({ error: "Product ID required or invalid format" }, { status: 400 });
+        }
+
+        let product;
+        try {
+            product = await Product.findById(productId).lean();
+        } catch (err) {
+            console.error('Product.findById error:', err, 'productId:', productId);
+            return NextResponse.json({ error: "Invalid productId format" }, { status: 400 });
+        }
         if (!product || product.storeId !== storeId) return NextResponse.json({ error: "Not authorized" }, { status: 401 });
 
         let imagesUrl = product.images;

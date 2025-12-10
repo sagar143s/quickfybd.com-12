@@ -35,10 +35,10 @@ function PublicLayoutAuthed({ children }) {
             <GuestOrderLinker />
             <TopBarNotification />
             {/* <Banner />/ */}
-            <Navbar />
+         
             <main className={`flex-1 ${isHomePage ? 'pb-8' : 'pb-20'} lg:pb-0`}>{children}</main>
             {!isHomePage && <MobileBottomNav />}
-            <Footer />
+     
         </div>
     );
 }

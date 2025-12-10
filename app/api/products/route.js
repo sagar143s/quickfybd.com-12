@@ -45,7 +45,7 @@ export async function POST(request) {
         return NextResponse.json({ product }, { status: 201 });
     } catch (error) {
         console.error('Error creating product:', error);
-
+        return NextResponse.json({ error: 'Error creating product', details: error.message, stack: error.stack }, { status: 500 });
     }
 }
 
@@ -74,27 +74,47 @@ export async function GET(request){
             .lean()
             .exec();
 
-        // Add discount label if applicable
-        products = products.map(product => {
-            let label = null;
-            let labelType = null;
-            if (typeof product.mrp === 'number' && typeof product.price === 'number' && product.mrp > product.price) {
-                const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
-                if (discount >= 50) {
-                    label = `Min. ${discount}% Off`;
-                    labelType = 'offer';
-                } else if (discount > 0) {
-                    label = `${discount}% Off`;
-                    labelType = 'offer';
+        // Add discount label and review stats if applicable
+        const Rating = require('@/models/Rating');
+        products = await Promise.all(products.map(async product => {
+            try {
+                let label = null;
+                let labelType = null;
+                if (typeof product.mrp === 'number' && typeof product.price === 'number' && product.mrp > product.price) {
+                    const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+                    if (discount >= 50) {
+                        label = `Min. ${discount}% Off`;
+                        labelType = 'offer';
+                    } else if (discount > 0) {
+                        label = `${discount}% Off`;
+                        labelType = 'offer';
+                    }
                 }
+
+                // Fetch review stats
+                const reviews = await Rating.find({ productId: String(product._id), approved: true }).select('rating').lean();
+                const ratingCount = reviews.length;
+                const averageRating = ratingCount > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount) : 0;
+
+                return {
+                    ...product,
+                    label,
+                    labelType,
+                    ratingCount,
+                    averageRating
+                };
+            } catch (err) {
+                console.error('Error mapping product review stats:', err);
+                return {
+                    ...product,
+                    label: null,
+                    labelType: null,
+                    ratingCount: 0,
+                    averageRating: 0,
+                    reviewError: err.message
+                };
             }
-            return {
-                ...product,
-                id: product._id.toString(),
-                label,
-                labelType
-            };
-        });
+        }));
 
         // Sort based on the sortBy parameter
         if (sortBy === 'orders') {

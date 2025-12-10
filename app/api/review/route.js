@@ -125,10 +125,10 @@ export async function GET(request) {
             productId,
             approved: true 
         })
-        .populate({
-            path: 'userId',
-            select: '_id name image email'
-        })
+        // .populate({
+        //     path: 'userId',
+        //     select: '_id name image email'
+        // })
         .sort({ createdAt: -1 })
         .lean();
 

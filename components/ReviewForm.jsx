@@ -40,7 +40,7 @@ export default function ReviewForm({ productId, onReviewAdded }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        
+
         if (!isSignedIn) {
             toast.error('Please sign in to write a review')
             router.push('/sign-in')
@@ -52,13 +52,18 @@ export default function ReviewForm({ productId, onReviewAdded }) {
             return
         }
 
+        if (!productId) {
+            toast.error('Product ID missing. Cannot submit review.')
+            return
+        }
+
         try {
             setSubmitting(true)
             const formData = new FormData()
             formData.append('productId', productId)
             formData.append('rating', rating)
             formData.append('review', review)
-            
+
             images.forEach(img => {
                 formData.append('images', img)
             })
@@ -67,7 +72,7 @@ export default function ReviewForm({ productId, onReviewAdded }) {
             const { data } = await axios.post('/api/review', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             })
-
+            /*...existing code...*/
             toast.success('Review submitted! Pending approval by store.')
             setShowForm(false)
             setRating(5)

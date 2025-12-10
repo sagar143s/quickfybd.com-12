@@ -31,12 +31,12 @@ const ProductDescription = ({ product }) => {
     useEffect(() => {
         fetchReviews()
         fetchSuggestedProducts()
-    }, [product.id, allProducts])
+    }, [product._id, allProducts])
 
     const fetchSuggestedProducts = () => {
         // Filter products by same category or tags, exclude current product
         const related = allProducts.filter(p => {
-            if (p.id === product.id) return false
+            if (p._id === product._id) return false
             
             // Match by category
             if (p.category === product.category) return true
@@ -59,7 +59,7 @@ const ProductDescription = ({ product }) => {
     const fetchReviews = async () => {
         try {
             setLoadingReviews(true)
-            const { data } = await axios.get(`/api/review?productId=${product.id}`)
+            const { data } = await axios.get(`/api/review?productId=${product._id}`)
             setReviews(data.reviews)
         } catch (error) {
             console.error('Failed to fetch reviews:', error)
@@ -173,7 +173,7 @@ const ProductDescription = ({ product }) => {
                         <p className="text-sm text-gray-600 mb-4">
                             You can add your review by clicking the star rating below:
                         </p>
-                        <ReviewForm productId={product.id} onReviewAdded={handleReviewAdded} />
+                        <ReviewForm productId={product._id} onReviewAdded={handleReviewAdded} />
                     </div>
 
                     {/* Reviews List */}
@@ -273,7 +273,7 @@ const ProductDescription = ({ product }) => {
                     <div className="p-6">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {suggestedProducts.map((suggestedProduct) => (
-                                <ProductCard key={suggestedProduct.id} product={suggestedProduct} />
+                                <ProductCard key={suggestedProduct._id} product={suggestedProduct} />
                             ))}
                         </div>
                     </div>

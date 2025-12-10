@@ -63,12 +63,12 @@ const ProductDetails = ({ product }) => {
     if (isSignedIn) {
       checkWishlistStatus();
     }
-  }, [isSignedIn, product.id]);
+  }, [isSignedIn, product._id]);
 
   const checkWishlistStatus = async () => {
     try {
       const { data } = await axios.get('/api/wishlist');
-      const isInList = data.wishlist?.some(item => item.productId === product.id);
+      const isInList = data.wishlist?.some(item => item.productId === product._id);
       setIsInWishlist(isInList);
     } catch (error) {
       console.error('Error checking wishlist status:', error);
@@ -88,7 +88,7 @@ const ProductDetails = ({ product }) => {
       setWishlistLoading(true);
       const action = isInWishlist ? 'remove' : 'add';
       await axios.post('/api/wishlist', { 
-        productId: product.id, 
+        productId: product._id, 
         action 
       });
       

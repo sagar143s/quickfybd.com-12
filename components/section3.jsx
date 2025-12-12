@@ -52,7 +52,7 @@ export default function TopDeals() {
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-6">
 
-              {products?.map((item, i) => {
+{products?.slice(0, 10).map((item, i) => {
                 const img =
                   item.images?.[0] && item.images[0] !== ""
                     ? item.images[0]

@@ -201,7 +201,7 @@ const ProductDescription = ({ product }) => {
                                         <div className="flex-1">
                                             {/* User Info & Rating */}
                                             <div className="flex items-start justify-between mb-2">
-                                                <div>
+                                                {/* <div>
                                                     <p className="font-semibold text-gray-900">{item.user && item.user.name ? item.user.name : 'Unknown User'}</p>
                                                     <p className="text-xs text-gray-400 mt-0.5">
                                                         {new Date(item.createdAt).toLocaleDateString('en-US', {
@@ -210,7 +210,7 @@ const ProductDescription = ({ product }) => {
                                                             year: 'numeric'
                                                         })}
                                                     </p>
-                                                </div>
+                                                </div> */}
                                                 <div className="flex items-center gap-0.5">
                                                     {Array(5).fill('').map((_, index) => (
                                                         <StarIcon 
@@ -244,9 +244,9 @@ const ProductDescription = ({ product }) => {
                                             )}
                                             
                                             {/* Country Flag */}
-                                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                            {/* <div className="flex items-center gap-2 text-xs text-gray-500">
                                                 <span>🇦🇪</span>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </div>

@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { auth } from '@/lib/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+
 import Loading from '@/components/Loading'
 import Link from 'next/link'
 import DashboardSidebar from '@/components/DashboardSidebar'
@@ -63,20 +62,20 @@ export default function BrowseHistoryPage() {
   if (user === null) {
     return (
       <>
-        <Navbar />
+        {/* <Navbar /> removed, now global via ClientLayout */}
         <div className="max-w-4xl mx-auto px-4 py-10">
           <h1 className="text-2xl font-semibold text-slate-800 mb-3">Browse History</h1>
           <p className="text-slate-600 mb-6">Please sign in to view your browse history.</p>
           <Link href="/" className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg">Go to Home</Link>
         </div>
-        <Footer />
+        {/* <Footer /> removed, now global via ClientLayout */}
       </>
     )
   }
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> removed, now global via ClientLayout */}
       <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-6">
         <DashboardSidebar />
         <main className="md:col-span-3">
@@ -121,7 +120,7 @@ export default function BrowseHistoryPage() {
           )}
         </main>
       </div>
-      <Footer />
+      {/* <Footer /> removed, now global via ClientLayout */}
     </>
   )
 }

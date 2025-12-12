@@ -90,7 +90,7 @@ export default function DashboardOrdersPage() {
                         <div className="flex flex-wrap items-center gap-4">
                           <div>
                             <p className="text-xs text-slate-500">Order ID</p>
-                            <p className="font-semibold text-slate-800">#{orderId.toString().slice(-8).toUpperCase()}</p>
+                            <p className="font-semibold text-slate-800 break-all">{orderId}</p>
                           </div>
                           <div>
                             <p className="text-xs text-slate-500">Date</p>
@@ -112,12 +112,35 @@ export default function DashboardOrdersPage() {
                             </span>
                           </div>
                         </div>
-                        <button
-                          onClick={() => setExpandedOrder(isExpanded ? null : orderId)}
-                          className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                        >
-                          {isExpanded ? 'Hide Details' : 'View Details'}
-                        </button>
+                        <div className="flex flex-col gap-2 items-end">
+                          <button
+                            onClick={() => setExpandedOrder(isExpanded ? null : orderId)}
+                            className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          >
+                            {isExpanded ? 'Hide Details' : 'View Details'}
+                          </button>
+                          {/* Pick Up Button: show if not picked up or shipped */}
+                          {order.status !== 'PICKED_UP' && order.status !== 'SHIPPED' && order.status !== 'DELIVERED' && (
+                            <button
+                              className="px-4 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition"
+                              onClick={async () => {
+                                try {
+                                  const token = await auth.currentUser.getIdToken(true)
+                                  await axios.post('/api/orders/pickup', { orderId }, {
+                                    headers: { Authorization: `Bearer ${token}` },
+                                  })
+                                  toast.success('Pickup requested!')
+                                  // Optionally refresh orders
+                                  setOrders((prev) => prev.map(o => o._id === orderId ? { ...o, status: 'PICKED_UP' } : o))
+                                } catch (err) {
+                                  toast.error(err?.response?.data?.error || 'Failed to request pickup')
+                                }
+                              }}
+                            >
+                              Pick Up
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
 

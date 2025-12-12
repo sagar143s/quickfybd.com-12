@@ -308,7 +308,11 @@ export async function POST(request) {
             console.log('ORDER API DEBUG: orderData before Order.create:', JSON.stringify(orderData, null, 2));
             
             const order = await Order.create(orderData);
-            
+            // Set shortOrderNumber (last 6 hex digits of ObjectId as decimal)
+            const hex = order._id.toString().slice(-6);
+            const shortOrderNumber = parseInt(hex, 16);
+            order.shortOrderNumber = shortOrderNumber;
+            await order.save();
             // Populate order with related data
             const populatedOrder = await Order.findById(order._id)
                 .populate('userId')
@@ -316,10 +320,9 @@ export async function POST(request) {
                     path: 'orderItems.productId',
                     model: 'Product'
                 });
-            
             orderIds.push(order._id.toString());
 
-            // Email notification
+            // Email notification using sendOrderConfirmationEmail
             try {
                 let customerEmail = '';
                 let customerName = '';
@@ -333,28 +336,31 @@ export async function POST(request) {
                     customerName = user?.name || '';
                 }
 
-                // Send order confirmation email to customer using Nodemailer
                 if (customerEmail) {
-                    const { sendOrderEmail } = await import('@/lib/nodemailer');
-                    await sendOrderEmail({
-                        to: customerEmail,
-                        subject: 'Order Confirmation',
-                        html: `<p>Dear ${customerName},</p><p>Your order has been received and is being processed.</p><p>Thank you for shopping with us!</p>`
+                    console.log('Sending order confirmation email with:', {
+                        email: customerEmail,
+                        name: customerName,
+                        orderId: order._id,
+                        total: order.total,
+                        orderItems: order.orderItems,
+                        shippingAddress: order.shippingAddress,
+                        createdAt: order.createdAt,
+                        paymentMethod: order.paymentMethod || paymentMethod
                     });
-                    console.log('Nodemailer order confirmation sent to customer:', customerEmail);
-                }
-                // Send order notification to admin using Nodemailer
-                if (process.env.ADMIN_EMAIL) {
-                    const { sendOrderEmail } = await import('@/lib/nodemailer');
-                    await sendOrderEmail({
-                        to: process.env.ADMIN_EMAIL,
-                        subject: 'New Order Received',
-                        html: `<p>New order placed by ${customerName} (${customerEmail}).</p>`
+                    await sendOrderConfirmationEmail({
+                        email: customerEmail,
+                        name: customerName,
+                        orderId: order._id,
+                        total: order.total,
+                        orderItems: order.orderItems,
+                        shippingAddress: order.shippingAddress,
+                        createdAt: order.createdAt,
+                        paymentMethod: order.paymentMethod || paymentMethod
                     });
-                    console.log('Nodemailer order notification sent to admin:', process.env.ADMIN_EMAIL);
+                    console.log('Order confirmation email sent to customer:', customerEmail);
                 }
             } catch (emailError) {
-                console.error('Error sending EmailJS auto-reply:', emailError);
+                console.error('Error sending order confirmation email:', emailError);
                 // Don't fail the order if email fails
             }
         }

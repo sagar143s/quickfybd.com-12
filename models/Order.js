@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const OrderItemSchema = new mongoose.Schema({
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  name: String,
+  price: Number,
+  quantity: Number,
+  // Add more fields as needed
+}, { _id: false });
+
 const OrderSchema = new mongoose.Schema({
   storeId: { type: String, required: true },
   userId: String,
@@ -17,7 +25,9 @@ const OrderSchema = new mongoose.Schema({
   guestEmail: String,
   guestPhone: String,
   shippingAddress: Object,
-  orderItems: Array,
+  trackingId: { type: String, index: true },
+  shortOrderNumber: { type: Number, index: true },
+  orderItems: [OrderItemSchema],
   items: Array,
   // Add more fields as needed
 }, { timestamps: true });

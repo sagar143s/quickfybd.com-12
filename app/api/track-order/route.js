@@ -17,38 +17,48 @@ export async function GET(req) {
       )
     }
 
-    let query = {}
-    
-    // Build query based on provided parameters
+    let order = null;
     if (awb) {
-      // Search by AWB/tracking number
-      query.trackingId = awb.trim()
-    } else if (phone) {
-      // Search by phone number in shipping address
-      query['shippingAddress.phone'] = phone.trim()
+      const awbTrim = awb.trim();
+      // 1. Try by trackingId
+      order = await Order.findOne({ trackingId: awbTrim })
+        .populate('orderItems.productId')
+        .sort({ createdAt: -1 })
+        .lean();
+      // 2. Try by full orderId (ObjectId)
+      if (!order && /^[a-fA-F0-9]{24}$/.test(awbTrim)) {
+        order = await Order.findOne({ _id: awbTrim })
+          .populate('orderItems.productId')
+          .lean();
+      }
+      // 3. Try by shortOrderNumber field
+      if (!order && /^\d{1,}$/.test(awbTrim)) {
+        order = await Order.findOne({ shortOrderNumber: Number(awbTrim) })
+          .populate('orderItems.productId')
+          .lean();
+      }
     }
-
-    // Find order by phone or AWB
-    const order = await Order.findOne(query)
-      .populate('orderItems.productId')
-      .sort({ createdAt: -1 }) // Get most recent if multiple orders
-      .lean()
-
+    // 4. Try by phone number if provided (fallback)
+    if (!order && phone) {
+      order = await Order.findOne({ 'shippingAddress.phone': phone.trim() })
+        .populate('orderItems.productId')
+        .sort({ createdAt: -1 })
+        .lean();
+    }
     if (!order) {
       return NextResponse.json(
         { success: false, message: 'Order not found with the provided information' },
         { status: 404 }
-      )
+      );
     }
-
     return NextResponse.json({
       success: true,
       order
-    })
+    });
   } catch (error) {
-    console.error('Track order error:', error)
+    console.error('Track order error:', error && error.stack ? error.stack : error)
     return NextResponse.json(
-      { success: false, message: 'Failed to track order' },
+      { success: false, message: 'Failed to track order', error: error?.message || error },
       { status: 500 }
     )
   }

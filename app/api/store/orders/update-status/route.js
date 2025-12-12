@@ -70,9 +70,18 @@ export async function POST(request) {
         order.status = status;
         await order.save();
 
+        // Send status update email
+        try {
+            const { sendOrderStatusEmail } = await import('@/lib/email');
+            const emailResult = await sendOrderStatusEmail(order, status);
+            console.log('[store/update-status] Email send result:', emailResult);
+        } catch (emailError) {
+            console.error('[store/update-status] Email sending failed:', emailError);
+        }
+
         return NextResponse.json({ 
             success: true, 
-            message: 'Order status updated successfully',
+            message: 'Order status updated and email sent',
             order: {
                 _id: order._id,
                 status: order.status
